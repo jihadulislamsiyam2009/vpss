@@ -1,7 +1,7 @@
 name: vps
 
 on:
-  workflow_dispatch:  # হ্যান্ড রান করার জন্য
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,6 +11,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Start VPS with sshx.io
+      - name: Start VPS with sshx.io and show SSH command
         run: |
-          curl -sSf https://sshx.io/get | sh -s run
+          curl -sSf https://sshx.io/get | sh -s run &
+          sleep 5
+          /tmp/sshx link  # এই লাইন SSH লিংক ও টার্মিনাল ইউজারনেম print করবে
