@@ -1,0 +1,16 @@
+name: vps
+
+on:
+  workflow_dispatch:  # হাতে চালানোর জন্য
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Start VPS with sshx.io
+        run: |
+          curl -sSf https://sshx.io/get | sh -s -- -o log
