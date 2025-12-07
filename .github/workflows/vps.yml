@@ -1,18 +1,39 @@
-name: vps
+name: Android VPS with Web Access
 
 on:
-  workflow_dispatch:
+workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+android-vps:
+runs-on: ubuntu-latest
+timeout-minutes: 360
+steps:
+- name: Install dependencies
+run: |
+sudo apt-get update
+sudo apt-get install -y docker.io wget unzip curl
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+  - name: Start Android container
+    run: |
+      docker run -d -p 6080:6080 --name android-vps budtmo/docker-android-x86-8.1
 
-      - name: Start VPS with sshx.io and show SSH command
-        run: |
-          curl -sSf https://sshx.io/get | sh -s run &
-          sleep 5
-          /tmp/sshx link  # এই লাইন SSH লিংক ও টার্মিনাল ইউজারনেম print করবে
+  - name: Install ngrok
+    run: |
+      wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+      unzip ngrok-stable-linux-amd64.zip
+      chmod +x ngrok
+
+  - name: Configure ngrok
+    run: |
+      ./ngrok authtoken 2ytjV8Op4vrrttvTrEJiQLEDi5I_dwsosxpuvCSo4dLqd9P1
+
+  - name: Start ngrok tunnel for Android
+    run: |
+      nohup ./ngrok http 6080 --log=stdout > ngrok.log &
+      sleep 10
+      NGROK_URL=$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+      echo "=========================================="
+      echo "Access your Android device in browser at:"
+      echo "$NGROK_URL"
+      echo "=========================================="
+      sleep infinity
